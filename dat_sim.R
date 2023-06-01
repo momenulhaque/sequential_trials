@@ -85,29 +85,29 @@ if(scenario==3){
 #----
 #generate U, A, L
 
-A=matrix(nrow=n,ncol=n.visit)
-L=matrix(nrow=n,ncol=n.visit)
+A = matrix(nrow=n,ncol=n.visit)
+L = matrix(nrow=n,ncol=n.visit)
 
-U=rnorm(n,0,0.1)
-L[,1]=rnorm(n,U,1)
-A[,1]=rbinom(n,1,expit(gamma.0+gamma.L*L[,1]))
+U = rnorm(n, 0, 0.1)
+L[, 1] = rnorm(n, U, 1)
+A[, 1] = rbinom(n, 1, expit(gamma.0 + gamma.L*L[, 1]))
 for(k in 2:n.visit){
-  L[,k]=rnorm(n,0.8*L[,k-1]-A[,k-1]+0.1*(k-1)+U,1)
-  A[,k]=ifelse(A[,k-1]==1,1,rbinom(n,1,expit(gamma.0+gamma.L*L[,k])))
+  L[,k] = rnorm(n, 0.8*L[, k-1] - A[, k-1] + 0.1*(k-1) + U, 1)
+  A[, k] = ifelse(A[, k-1]==1, 1, rbinom(n, 1, expit(gamma.0 + gamma.L*L[, k])))
 }
 
 #----
 #generate event times T.obs, and event indicators D.obs
 
-T.obs=rep(NA,n)
+T.obs = rep(NA, n)
 
 for(k in 1:n.visit){
-  u.t=runif(n,0,1)
-  haz=alpha.0+alpha.A*A[,k]+alpha.L*L[,k]+alpha.U*U
-  new.t=-log(u.t)/haz
-  T.obs=ifelse(is.na(T.obs) & new.t<1 & haz>0, k-1+new.t, T.obs)#the haz>0 is just used to deal with tiny possibility (under this data generating mechanism) the hazard could go negative. 
+  u.t = runif(n, 0, 1)
+  haz = alpha.0 + alpha.A*A[, k] + alpha.L*L[, k] + alpha.U*U
+  new.t = -log(u.t)/haz
+  T.obs = ifelse(is.na(T.obs) & new.t<1 & haz>0, k-1+new.t, T.obs)#the haz>0 is just used to deal with tiny possibility (under this data generating mechanism) the hazard could go negative. 
 }
-D.obs=ifelse(is.na(T.obs), 0, 1)
+D.obs = ifelse(is.na(T.obs), 0, 1)
 T.obs=ifelse(is.na(T.obs), 5, T.obs)
 
 # #------------------
@@ -166,3 +166,5 @@ dat.long=dat.long %>%
   group_by(id) %>%
   mutate(L.baseline = first(L))
 
+
+View(dat.long)
