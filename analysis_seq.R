@@ -60,6 +60,8 @@ set.seed(2611)
 for(sim in 1:n.sim){
   print(sim)
   
+  dat.long = dat1
+  
   #Simulate data
   source("dat_sim.R")
   
@@ -77,6 +79,8 @@ for(sim in 1:n.sim){
     mutate(L.baseline=first(L))%>%
     mutate(time.new=time-trial)%>%
     mutate(time.stop.new=time.stop-trial)
+  
+  
   
   #Trial starting at time 1
   trial.1=dat.long[dat.long$time>=1,]
@@ -137,13 +141,25 @@ for(sim in 1:n.sim){
   #Combine trials starting at time 0,1,2,3,4 into one dataset
   dat.seq.orig=rbind(trial.0,trial.1,trial.2,trial.3,trial.4)
   
+  dim(dat.seq.orig)
+  
+  View(dat.seq.orig %>%  arrange(id, trial) %>% select(id, trial, time, time.new, time.stop.new, A, A.lead1, A.baseline, Anext.equal.to.baseline, Alag1,  L, T.obs, event, visit))
+  
+  
   #Generate indicator of whether the person is not censored at the end of the current period, i.e. whether their *next* A is equal to A.baseline
-  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(A.lead1 = lead(A,n=1)) 
-  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(L.lead1 = lead(L,n=1)) #this is needed for the IPACW modelbelow (wt.mod.denom)scens
+  dat.seq.orig = dat.seq.orig %>% group_by(id, trial) %>% mutate(A.lead1 = lead(A, n=1)) 
+  
+  dat.seq.orig=dat.seq.orig %>% group_by(id, trial) %>% mutate(L.lead1 = lead(L, n=1)) #this is needed for the IPACW model below (wt.mod.denom) scens
   dat.seq.orig=dat.seq.orig %>% mutate(Anext.equal.to.baseline = ifelse(A.lead1==A.baseline,1,0)) 
+  
+  dim(dat.seq.orig)
   
   #Now impose the artificial censoring: restrict to rows where current treatment status is equal to A.baseline (treatment status at the start of the trial)
   dat.seq=dat.seq.orig[dat.seq.orig$A==dat.seq.orig$A.baseline,]
+  
+  dim(dat.seq)
+  View(dat.seq %>%  arrange(id, trial) %>% select(id, trial, time, time.new, time.stop.new, A, A.lead1, A.baseline, Anext.equal.to.baseline, Alag1,  L, T.obs, event, visit))
+
   
   #------------------
   #Estimate stabilized weights for analysis
@@ -153,7 +169,7 @@ for(sim in 1:n.sim){
   #Denominator of weights
   #Note that it is appropriate that Anext.equal.to.baseline is NA in the last row of data for a given individual. 
   #These rows do not contribute to the estimation of the artificial censoring weights
-  wt.mod.denom=glm(Anext.equal.to.baseline~L.lead1,family = "binomial",data=dat.seq[dat.seq$A.baseline==0,])
+  wt.mod.denom=glm(Anext.equal.to.baseline ~ L.lead1,family = "binomial",data=dat.seq[dat.seq$A.baseline==0,])
   
   dat.seq$wt.denom=1
   dat.seq[dat.seq$rownum!=5,]$wt.denom=predict(wt.mod.denom,newdata=dat.seq[dat.seq$rownum!=5,],type="response")
@@ -185,7 +201,7 @@ for(sim in 1:n.sim){
   #Sequential trials analysis using stabilized weights (IPACW)
   #-----------------
 
-  ah.sw=aalen(Surv(time.new,time.stop.new,event)~A.baseline+L.baseline,data=dat.seq,n.sim=0,weights = dat.seq$ipw.stab.cum)
+  ah.sw=aalen(Surv(time.new,time.stop.new,event)~A.baseline+L.baseline,data=dat.seq,n.sim=0, weights = dat.seq$ipw.stab.cum)
 
   ah.sw.stepfun.int=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,2]))
   ah.sw.stepfun.A=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,3]))
