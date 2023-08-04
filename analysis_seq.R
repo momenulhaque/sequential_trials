@@ -139,11 +139,12 @@ for(sim in 1:n.sim){
   
   #Generate indicator of whether the person is not censored at the end of the current period, i.e. whether their *next* A is equal to A.baseline
   dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(A.lead1 = lead(A,n=1)) 
-  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(L.lead1 = lead(L,n=1)) #this is needed for the IPACW modelbelow (wt.mod.denom)scens
-  dat.seq.orig=dat.seq.orig %>% mutate(Anext.equal.to.baseline = ifelse(A.lead1==A.baseline,1,0)) 
+  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(L.lead1 = lead(L,n=1)) #this is needed for the IPACW modelbelow (wt.mod.denom) scens
+  dat.seq.orig=dat.seq.orig %>% mutate(Anext.equal.to.baseline = ifelse(A.lead1==A.baseline, 1, 0)) 
   
   #Now impose the artificial censoring: restrict to rows where current treatment status is equal to A.baseline (treatment status at the start of the trial)
   dat.seq=dat.seq.orig[dat.seq.orig$A==dat.seq.orig$A.baseline,]
+
   
   #------------------
   #Estimate stabilized weights for analysis
@@ -186,7 +187,11 @@ for(sim in 1:n.sim){
   #-----------------
 
   ah.sw=aalen(Surv(time.new,time.stop.new,event)~A.baseline+L.baseline,data=dat.seq,n.sim=0,weights = dat.seq$ipw.stab.cum)
-
+  
+  # ah.sw=aalen(Surv(time.new,time.stop.new,event)~ const(A.baseline) + const(L.baseline), data=dat.seq,n.sim=0,weights = dat.seq$ipw.stab.cum)
+  # summary(ah.sw)
+  
+  
   ah.sw.stepfun.int=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,2]))
   ah.sw.stepfun.A=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,3]))
   ah.sw.stepfun.L=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,4]))

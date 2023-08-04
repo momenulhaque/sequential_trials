@@ -312,7 +312,7 @@ for(sim in 1:n.sim){
   #MSM-IPTW analysis using truncated stabilized weights, for the MSM that is conditional on L0 
   #-----------------
 
-  ah.sw.L.p0=aalen(Surv(time,time.stop,event)~A+L.baseline,data=dat.long[dat.long$time==0,],n.sim=0,weights = dat.long[dat.long$time==0,]$ipw.s.L.trunc)
+  ah.sw.L.p0=aalen(Surv(time,time.stop,event)~A+L.baseline, data=dat.long[dat.long$time==0,],n.sim=0,weights = dat.long[dat.long$time==0,]$ipw.s.L.trunc)
   ah.sw.L.p1=aalen(Surv(time,time.stop,event)~A+Alag1+L.baseline,data=dat.long[dat.long$time==1,],n.sim=0,weights = dat.long[dat.long$time==1,]$ipw.s.L.trunc)
   ah.sw.L.p2=aalen(Surv(time,time.stop,event)~A+Alag1+Alag2+L.baseline,data=dat.long[dat.long$time==2,],n.sim=0,weights = dat.long[dat.long$time==2,]$ipw.s.L.trunc)
   ah.sw.L.p3=aalen(Surv(time,time.stop,event)~A+Alag1+Alag2+Alag3+L.baseline,data=dat.long[dat.long$time==3,],n.sim=0,weights = dat.long[dat.long$time==3,]$ipw.s.L.trunc)
