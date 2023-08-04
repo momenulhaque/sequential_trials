@@ -74,17 +74,17 @@ for(sim in 1:n.sim){
   
   #Denominator of weights
   wt.mod=glm(A~L,family="binomial",data=dat.long[dat.long$Alag1==0,])
-  pred.wt=predict(wt.mod,type = "response",newdata = dat.long)
-  dat.long$wt=ifelse(dat.long$A==1,pred.wt,1-pred.wt)
-  dat.long$wt=ifelse(dat.long$Alag1==1,1,dat.long$wt)
-  dat.long$wt.cum=ave(dat.long$wt,dat.long$id,FUN=cumprod)
+  pred.wt=predict(wt.mod, type = "response", newdata = dat.long)
+  dat.long$wt=ifelse(dat.long$A==1, pred.wt, 1-pred.wt)
+  dat.long$wt=ifelse(dat.long$Alag1==1, 1, dat.long$wt)
+  dat.long$wt.cum=ave(dat.long$wt, dat.long$id, FUN=cumprod)
   
   #Numerator of stabilised weights: for the MSM that is not conditional on L0
   wt.mod.num=glm(A~Alag1*as.factor(visit),family="binomial",data=dat.long[dat.long$Alag1==0,])
   pred.wt.num=predict(wt.mod.num,type = "response",newdata = dat.long)
-  dat.long$wt.num=ifelse(dat.long$A==1,pred.wt.num,1-pred.wt.num)
-  dat.long$wt.num=ifelse(dat.long$Alag1==1,1,dat.long$wt.num)
-  dat.long$wt.cum.num=ave(dat.long$wt.num,dat.long$id,FUN=cumprod)
+  dat.long$wt.num=ifelse(dat.long$A==1, pred.wt.num, 1-pred.wt.num)
+  dat.long$wt.num=ifelse(dat.long$Alag1==1, 1, dat.long$wt.num)
+  dat.long$wt.cum.num=ave(dat.long$wt.num, dat.long$id, FUN=cumprod)
   
   #Numerator of stabilised weights: for the MSM that is conditional on L0
   wt.mod.num.L=glm(A~L.baseline*as.factor(visit),family="binomial",data=dat.long[dat.long$Alag1==0,])
@@ -110,7 +110,7 @@ for(sim in 1:n.sim){
   #MSM-IPTW analysis using stabilized weights, for the MSM that is not conditional on L0 
   #-----------------
 
-  ah.sw.p0=aalen(Surv(time,time.stop,event)~A,data=dat.long[dat.long$time==0,],n.sim=0,weights = dat.long[dat.long$time==0,]$ipw.s)
+  ah.sw.p0=aalen(Surv(time,time.stop,event)~A, data=dat.long[dat.long$time==0,], n.sim=0, weights = dat.long[dat.long$time==0,]$ipw.s)
   ah.sw.p1=aalen(Surv(time,time.stop,event)~A+Alag1,data=dat.long[dat.long$time==1,],n.sim=0,weights = dat.long[dat.long$time==1,]$ipw.s)
   ah.sw.p2=aalen(Surv(time,time.stop,event)~A+Alag1+Alag2,data=dat.long[dat.long$time==2,],n.sim=0,weights = dat.long[dat.long$time==2,]$ipw.s)
   ah.sw.p3=aalen(Surv(time,time.stop,event)~A+Alag1+Alag2+Alag3,data=dat.long[dat.long$time==3,],n.sim=0,weights = dat.long[dat.long$time==3,]$ipw.s)
