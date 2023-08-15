@@ -88,7 +88,7 @@ dat=rbind(dat.A1,dat.A0)
 
 #Kaplan-Meier estimates of survival probabilities
 surv.A=survfit(Surv(T.obs,D.obs)~A,data=dat)
-surv.A.summ=summary(surv.A,times=t.hor)
+surv.A.summ=summary(surv.A, times=t.hor)
 
 #Obtain survival probabilities under the two treatment strategies: "always treated" (surv1), "never treated" (surv0)
 surv0_true=surv.A.summ$surv[surv.A.summ$strata=="A=0"]

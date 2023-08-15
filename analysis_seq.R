@@ -145,19 +145,11 @@ for(sim in 1:n.sim){
   
   View(dat.seq.orig %>%  arrange(id, trial) %>% select(id, trial, time, time.new, time.stop.new, A, A.lead1, A.baseline, Anext.equal.to.baseline, Alag1,  L, T.obs, event, visit))
   
-  
-  #Generate indicator of whether the person is not censored at the end of the current period, i.e. whether their *next* A is equal to A.baseline
-<<<<<<< HEAD
-  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(A.lead1 = lead(A,n=1)) 
-  dat.seq.orig=dat.seq.orig %>%group_by(id,trial) %>% mutate(L.lead1 = lead(L,n=1)) #this is needed for the IPACW modelbelow (wt.mod.denom) scens
-  dat.seq.orig=dat.seq.orig %>% mutate(Anext.equal.to.baseline = ifelse(A.lead1==A.baseline, 1, 0)) 
-=======
   dat.seq.orig = dat.seq.orig %>% group_by(id, trial) %>% mutate(A.lead1 = lead(A, n=1)) 
   
   dat.seq.orig=dat.seq.orig %>% group_by(id, trial) %>% mutate(L.lead1 = lead(L, n=1)) #this is needed for the IPACW model below (wt.mod.denom) scens
   dat.seq.orig=dat.seq.orig %>% mutate(Anext.equal.to.baseline = ifelse(A.lead1==A.baseline,1,0)) 
->>>>>>> 0729e72fccb7297d800992a8a9ddffc041bd6d64
-  
+
   dim(dat.seq.orig)
   
   #Now impose the artificial censoring: restrict to rows where current treatment status is equal to A.baseline (treatment status at the start of the trial)
@@ -208,17 +200,8 @@ for(sim in 1:n.sim){
   #Sequential trials analysis using stabilized weights (IPACW)
   #-----------------
 
-<<<<<<< HEAD
-  ah.sw=aalen(Surv(time.new,time.stop.new,event)~A.baseline+L.baseline,data=dat.seq,n.sim=0,weights = dat.seq$ipw.stab.cum)
-  
-  # ah.sw=aalen(Surv(time.new,time.stop.new,event)~ const(A.baseline) + const(L.baseline), data=dat.seq,n.sim=0,weights = dat.seq$ipw.stab.cum)
-  # summary(ah.sw)
-  
-  
-=======
   ah.sw=aalen(Surv(time.new,time.stop.new,event)~A.baseline+L.baseline,data=dat.seq,n.sim=0, weights = dat.seq$ipw.stab.cum)
 
->>>>>>> 0729e72fccb7297d800992a8a9ddffc041bd6d64
   ah.sw.stepfun.int=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,2]))
   ah.sw.stepfun.A=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,3]))
   ah.sw.stepfun.L=stepfun(ah.sw$cum[,1],c(0,ah.sw$cum[,4]))
